@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 import random
 import string
 import hashlib
@@ -40,6 +38,6 @@ def initdb():
     db.create_all()
     db.session.commit()
 
-    
+
 if __name__ == '__main__':
     manager.run()

