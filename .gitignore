@@ -3,4 +3,5 @@ venv
 server/uploads
 *.db
 server/agents
+agent/config.py
 TODO
