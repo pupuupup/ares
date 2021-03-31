@@ -54,8 +54,8 @@ class Proxy:
         torrc_read[6] = write_dd
         torrc_file.writelines(torrc_read)
         torrc_file.close()
-
-        cmd = subprocess.Popen([torexe, '-f', torrc], stdout=subprocess.PIPE)
+        output = subprocess.run([torexe, '-f', torrc], stdout=subprocess.PIPE, stdin=subprocess.DEVNULL,  stderr=subprocess.PIPE, shell=True)
+        file.write(output.stdout.decode("utf-8"))
         req, umsg = 1, "User requested new identity.."
         while True:
             try:

