@@ -16,7 +16,6 @@ import zipfile
 import tempfile
 import socket
 import getpass
-from proxy import Proxy
 import time
 
 
@@ -42,14 +41,6 @@ def threaded(func):
         t.start()
         return
     return wrapper
-
-class TorServiceSetup(object):
-
-    @threaded
-    def StartService(self):
-        TorProxy = Proxy()
-        TorProxy.ConfigureTor
-
 
 class Agent(object):
 
@@ -388,9 +379,6 @@ class Agent(object):
                 time.sleep(config.HELLO_INTERVAL)
 
 def main():
-    tor = TorServiceSetup()
-    tor.StartService()
-    time.sleep(20)
     agent = Agent()
     agent.run()
 
