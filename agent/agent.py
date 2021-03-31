@@ -380,7 +380,7 @@ class Agent(object):
                 failed_connections += 1
                 self.update_consecutive_failed_connections(failed_connections)
                 self.log("Consecutive failed connections: %d" % failed_connections)
-                if failed_connections != -1:
+                if config.MAX_FAILED_CONNECTIONS != -1:
                     if failed_connections > config.MAX_FAILED_CONNECTIONS:
                         self.silent = True
                         self.clean()
